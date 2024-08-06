@@ -1,0 +1,4 @@
+Flask
+Flask-SQLAlchemy
+Flask-Security-Too
+argon2-cffi
