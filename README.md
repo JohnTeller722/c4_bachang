@@ -1,1 +1,12 @@
-后端版本v0.0.1，基本实现【用户数据】（未测试）以及ping与get_version（已测试，可用）
+后端版本v0.0.2
+
+已经测试成功的api：
+
+GET /version
+GET /ping
+POST /user/login
+POST /user/logout
+GET /user/status
+
+
+运行：python -m unittest discover -s test以测试

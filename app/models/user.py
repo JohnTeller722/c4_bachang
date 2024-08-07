@@ -1,9 +1,12 @@
 from flask_security import UserMixin, RoleMixin
 from flask_sqlalchemy import SQLAlchemy
-from typing import List, Optional
+from typing import List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 
 db = SQLAlchemy()
+ph = PasswordHasher()
 
 roles_users = db.Table(
     'roles_users',
@@ -31,5 +34,12 @@ class User(db.Model, UserMixin):
     experience: Mapped[int] = mapped_column(db.Integer, default=0)  
     # 用户等级
     level: Mapped[int] = mapped_column(db.Integer, default=0)  
-    tf_primary_method: Optional[str] = db.Column(db.String(64))  # 两步验证主方法
-    tf_totp_secret: Optional[str] = db.Column(db.String(255))  # 两步验证TOTP密钥
+
+    def set_password(self, password: str) -> None:
+        self.password = ph.hash(password)
+
+    def check_password(self, password: str) -> bool:
+        try:
+            return ph.verify(self.password, password)
+        except VerifyMismatchError:
+            return False
