@@ -1,0 +1,30 @@
+version: 1.0 #range-compose格式版本
+
+name: 实验名称
+expId: 实验ID，同下，但是是数字。
+expUUID: 实验UUID，创建实验的时候yml里没有这行，由服务器分配。是UUID格式的。
+tag:
+    - 标签1 
+    - 标签2
+    - 标签3
+desc: 实验描述
+author: 实验作者
+component:
+    sample1_container: # 这个是实验子组件名称
+        type: container
+        config: https://www.example.com/range/Dockerfile # 示例文件
+        port: 30001 # 实验对外开放的端口。在服务器，该端口会被用于建立端口映射，例：30001->40310(对外访问)。
+
+    sample2_compose:
+        type: compose
+        config: https://www.example.com/range/docker-compose.yml
+
+    sample3_k8syml:
+        type: kubernetes
+        config: apply.yaml #上传时随range-compose.yml一并上传
+
+    sample4_virtmachine:
+        type: kubevirt
+        config: ubuntu2204_arm_kernel_CVE-2023-32333.yml
+
+    # 注：上面的config都是假的

@@ -15,20 +15,11 @@ def get_version() -> jsonify:
 def ping() -> jsonify:
     return jsonify({"status": 200, "message": "pong!"})
 
-# 格式不一定对
 @main_bp.route('/task/list', methods=['GET'])
 def get_task_list() -> str:
     tasks = Task.query.all()
     result = [
-        {
-            "id": task.id,
-            "taskUUID": task.taskUUID,
-            "expUUID": task.expUUID,
-            "status": task.status,
-            "resource_usage": task.resource_usage,
-            "network_traffic": task.network_traffic,
-            "logs": task.logs
-        }
+        task.to_dict()
         for task in tasks
     ]
     return jsonify(result)
@@ -44,22 +35,15 @@ def pause_task() -> str:
     # TODO: 实现暂停任务的具体逻辑
     return jsonify({"status": 200, "message": "Task paused"}), 200
 
-# 格式不一定对
 @main_bp.route('/exp/list', methods=['GET'])
 def get_experiment_list() -> str:
     experiments = Experiment.query.all()
     result = [
-        {
-            "id": exp.id,
-            "expUUID": exp.expUUID,
-            "type": exp.type,
-            "status": exp.status,
-            "config": exp.config,
-            "tasks": [task.taskUUID for task in exp.tasks]
-        }
+        exp.to_dict()
         for exp in experiments
     ]
     return jsonify(result)
+
 
 @main_bp.route('/exp/start', methods=['POST'])
 def start_experiment() -> str:
@@ -124,6 +108,17 @@ def edit_experiment() -> str:
     # 修改实验参数的逻辑
     # TODO: 实现修改实验参数的具体逻辑
     return jsonify({"status": 200, "message": "Experiment edited"}), 200
+
+@main_bp.route('/exp/add', methods=['POST'])
+def add_experiment() -> str:
+    expUUID = request.args.get('expUUID')
+
+    if not expUUID:
+        return jsonify({"status": 400, "message": "Bad Request"}), 400
+    
+    # 添加实验的逻辑
+    # TODO: 实现具体逻辑
+    return jsonify({"status": 200, "message": "Experiment added"}), 200
 
 @main_bp.route('/exp/pause', methods=['POST'])
 def pause_experiment() -> str:

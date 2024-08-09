@@ -14,8 +14,16 @@ class Task(db.Model):
     taskUUID: Mapped[str] = mapped_column(db.String(255), unique=True, nullable=False)
     expUUID: Mapped[str] = mapped_column(db.String(255), db.ForeignKey('experiments.expUUID'), nullable=False)
     status: Mapped[str] = mapped_column(db.String(50))
-    resource_usage: Mapped[str] = mapped_column(db.Text)
-    network_traffic: Mapped[str] = mapped_column(db.Text)
-    logs: Mapped[str] = mapped_column(db.Text)
     
     experiment: Mapped['Experiment'] = relationship('Experiment', back_populates='tasks')
+
+    def to_dict(self):
+        return {
+            "exp": {
+                "expId": self.experiment.id,
+                "expUUID": self.experiment.expUUID,
+                "name": self.experiment.name,
+            },
+            "taskID": self.taskUUID,
+            "status": self.status
+        }
