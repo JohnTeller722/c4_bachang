@@ -41,3 +41,7 @@ WEBSOCKET部分
 其他：
 
 运行：python -m unittest discover -s test以测试
+
+## 库说明
+
+请使用3rdparty下的子组件(git submodule)安装kubernetes pythonAPI。
