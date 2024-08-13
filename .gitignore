@@ -3,3 +3,5 @@ lib
 lib64
 include
 k3s.yaml
+__pycache__
+pyvenv.cfg
