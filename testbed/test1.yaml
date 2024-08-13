@@ -1,0 +1,22 @@
+apiVersion: apps/v1      #指定api版本标签
+kind: Deployment      #定义资源的类型/角色，deployment为副本控制器，此处资源类型可以是Deployment、Job、Ingress、Service等
+metadata:     #定义资源的元数据信息，比如资源的名称、namespace、标签等信息
+  name: nginx-deployment #定义资源的名称，在同一个namespace空间中必须是唯一的
+  namespace: default        #默认就是default，可以不用写
+  labels:        #定义Deployment资源标签
+    app: nginx 
+spec:         #定义deployment资源需要的参数属性，诸如是否在容器失败时重新启动容器的属性
+  replicas: 3       #定义副本数量
+  selector:        #定义标签选择器
+    matchLabels:      #定义匹配标签
+      app: nginx      #需与 .spec.template.metadata.labels 定义的标签保持一致
+  template:        #定义业务模板，如果有多个副本，所有副本的属性会按照模板的相关配置进行匹配
+    metadata:
+      labels:               #定义Pod副本将使用的标签，需与 .spec.selector.matchLabels 定义的标签保持一致
+        app: nginx
+    spec:
+      containers:    #定义容器属性
+      - name: nginx    #定义一个容器名，一个 - name: 定义一个容器
+        image: nginx:1.15.4  #定义容器使用的镜像以及版本
+        ports:
+        - containerPort: 80  #定义容器的对外的端口
