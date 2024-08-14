@@ -1,0 +1,8 @@
+bin
+lib
+lib64
+include
+share
+k3s.yaml
+__pycache__
+pyvenv.cfg
