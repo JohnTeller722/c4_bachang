@@ -1,0 +1,20 @@
+version: 1.0 # range-compose格式版本
+
+name: Vulhub Flask SSTI # 实验名称
+expId: 1 # 实验ID
+expUUID: 52129324-81d7-4e05-83c2-fc39dd456984 # 实验UUID
+tag: # 实验标签
+    - "d:easy" # 表示难度：简单
+    - "flask"
+    - "python"
+desc: 本实验移植了来自Vulhub的Flask SSTI漏洞环境，作为靶场管理系统功能测试。 # 实验描述
+author: vulhub # 实验作者
+component: # 实验组件
+    flask:
+        type: k8s # 实验组件类型
+        config: # 实验配置文件
+          - web-deployment.yaml
+          - web-service.yaml
+        port: 8000 # 实验暴露端口
+attachment: # 实验附件
+  - https://github.com/vulhub/vulhub/blob/master/README.zh-cn.md
