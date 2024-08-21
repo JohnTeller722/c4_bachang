@@ -1,0 +1,8 @@
+# 啦啦啦？
+
+[default]
+VERSION = "0.0.1"
+
+[development]
+LOGLEVEL = 1
+KUBECONFIG = "./k3s.yaml"

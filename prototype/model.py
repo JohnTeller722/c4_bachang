@@ -71,6 +71,14 @@ class ExperimentStatus(IntEnum):
     CRASHED = 5
     MISTAKEN = 6
 
+class ExperimentRuntime():
+    port = []
+    components = []
+
+    def __init__(self):
+        pass
+
+
 class Experiment():
     # ID = 0
     expUUID = ""
@@ -82,6 +90,7 @@ class Experiment():
     components = []
     attachments = []
     solution = "" # 存文件名，和components.config是一样的
+    runtime = ExperimentRuntime() # 运行时信息
 
     def __init__(self, name):
         # self.ID = 0

@@ -13,10 +13,10 @@ components: # 实验组件
 - flask:
     types: k8s # 实验组件类型
     config: # 实验配置文件
-      web-deployment.yaml
+      resource/Flask SSTI/web-deployment.yaml
 - flask_service:
     types: k8s
-    config: web-service.yaml
+    config: resource/Flask SSTI/web-service.yaml
 port: 8000
 
 attachment: # 实验附件
