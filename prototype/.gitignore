@@ -1,3 +1,5 @@
 
 # Ignore dynaconf secret files
 .secrets.*
+resource
+trash

@@ -1,8 +1,21 @@
-# 啦啦啦？
 
 [default]
 VERSION = "0.0.1"
+SSH_MAX_CONNECTIONS = 64
+RESOURCE_DIR="./resource"
+TRASH_DIR="./trash"
+TEMP_DIR="/tmp"
 
 [development]
-LOGLEVEL = 1
+LOGLEVEL = "DEBUG"
 KUBECONFIG = "./k3s.yaml"
+DEBUG = 1
+ADDRESS = "127.0.0.1"
+PORT = 5000
+
+[production]
+LOGLEVEL = "INFO"
+KUBECONFIG = "./k3s.yaml"
+DEBUG = 0
+ADDRESS = "0.0.0.0"
+PORT = 5000

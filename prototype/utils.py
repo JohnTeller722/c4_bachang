@@ -1,4 +1,6 @@
 import os
+import shutil
+import datetime
 from model import Experiment, ComponentType, Component
 from kubernetes import client, config, utils, stream
 from config import settings
@@ -10,11 +12,13 @@ import ssl
 import logging
 
 
-RANGECONFIG_VERSION=1.0
+RANGECONFIG_VERSION=1.1
 kubeclient = client.ApiClient(configuration=config.load_kube_config(settings.KUBECONFIG))
 # kubeclient = client.ApiClient(configuration=config.load_kube_config())
 api = client.CoreV1Api()
 
+def current_time():
+    return str(datetime.datetime.now())
 
 def component_repr(dumper, component):
     attrs = []
@@ -27,21 +31,51 @@ def component_repr(dumper, component):
     return dumper.represent_mapping(u'tag:yaml.org,2002:map', attrs)
 
 
+def parseUUID(uuid: str, hascrid=False):
+    # TODO: UUID验证
+    if hascrid:
+        try:
+            crid = int(uuid[37:])
+            uuid = uuid[:36]
+        except:
+            return None, None
+        # print(uuid, crid)
+        return (uuid, crid)
+    else:
+        return uuid
+
+def exp_path(name):
+    return settings.RESOURCE_DIR + '/' + name
+
+def trash_path(name):
+    return settings.TRASH_DIR + '/' + name
+
+
 def write_exp(_t):
     yaml.SafeDumper.add_representer(ComponentType, yaml.representer.SafeRepresenter.represent_int)
     yaml.SafeDumper.add_representer(Component, component_repr)
     try:
-        os.mkdir("./resource/"+_t.name)
+        os.mkdir(exp_path(_t.name))
     except FileExistsError:
         pass
     data = dict()
     data["version"] = RANGECONFIG_VERSION
     data.update(_t.dict_dump())
-    with open(f"./resource/{_t.name}/range-config.yaml", "w", encoding="utf-8") as f:
+    with open(exp_path(_t.name)+"/range-config.yaml", "w", encoding="utf-8") as f:
         yaml.dump(data, f, yaml.SafeDumper, allow_unicode=True, sort_keys=False)
 
-def action_from_yaml(yaml_file, action="apply"):
-    utils.action_from_yaml(kubeclient, yaml_file=yaml_file,
+def remove_exp(_t): # 软删除
+    try:
+        shutil.move(exp_path(_t.dirname), settings.TRASH_DIR + '/' + _t.name)
+        return True
+    except:
+        return False
+
+
+def action_from_yaml(yaml_file, workdir="./", action="apply"):
+    if workdir[-1] != '/':
+        workdir = workdir + '/'
+    utils.action_from_yaml(kubeclient, yaml_file=workdir+yaml_file,
                            verbose=True, action=action)
 
 def list_experiments(namespace="default"):
@@ -50,7 +84,13 @@ def list_experiments(namespace="default"):
     return [i.metadata.name for i in api.list_namespaced_pod(namespace).items]
 
 def get_pod_status(pod, namespace="default"):
-    status = api.read_namespaced_pod_status(pod, namespace).status.container_statuses[0].last_state
+    try:
+        # status = api.read_namespaced_pod_status(pod, namespace).status.container_statuses[0].last_state
+        status = api.read_namespaced_pod_status(pod, namespace).status.container_statuses[0]
+        print(status)
+    except IndexError:
+        return "Unknown"
+    return "Running"
     if status.running:
         if status.terminated:
             return "Crashed"
@@ -58,6 +98,15 @@ def get_pod_status(pod, namespace="default"):
             return "Running"
     else:
         return "Failed"
+
+def read_pod_log(pod, namespace="default"):
+    try:
+        logdata = api.read_namespaced_pod_log(pod, namespace)
+        print(logdata)
+        return logdata
+    except Exception as e:
+        raise e
+        return None
 
 class PodExecUnsupportedError(Exception):
     def __init__(self):
@@ -67,13 +116,16 @@ class PodExecUnsupportedError(Exception):
         msg = "This pod doesn't support interactive shell."
         return msg
 
-def test_kube_connection():
+def get_kube_arch() -> str:
     try:
         response = client.VersionApi(kubeclient).get_code()
         # logging.debug(f"来自服务器的消息：{response}")
-        return True
-    except:
-        return False
+        # print(response)
+        return response.platform
+    except Exception as e:
+        logging.warning(e)
+        return ""
+
 
 
 def ssh_tunnel(pod, namespace="default", port=20022):
@@ -130,17 +182,17 @@ def ssh_tunnel(pod, namespace="default", port=20022):
         await sender
 
     async def run():
-        async with websockets.serve(ssh_handle, "localhost", port):
+        async with websockets.serve(ssh_handle, "0.0.0.0", port):
             await asyncio.Future()
 
     asyncio.run(run())
 
     
-if __name__ == "__main__":
-    print(test_kube_connection())
-    print(list_experiments())
+# if __name__ == "__main__":
+    # print(test_kube_connection())
+    # print(list_experiments())
+    # read_pod_log("coredns-6799fbcd5-dnkxc", namespace="kube-system")
     # for i in list_experiments().items:
     #     print(i.metadata.name)
     # ssh_tunnel("metrics-server-54fd9b65b-wgcw2", namespace="kube-system", port=5002)
 
-    
