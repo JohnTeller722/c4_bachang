@@ -6,6 +6,7 @@ import random
 import time
 import uvicorn
 import tarfile
+import json
 from config import settings
 from model import Experiment, ExperimentStatus, ExperimentRuntime
 from flask import Flask, request, send_file
@@ -277,10 +278,8 @@ def exp_config_write():
     _t.from_yaml(yaml_file=exp_path(_t.dirname)+"/range-config.yaml")
     return Response(200, "文件保存成功", None)
 
-@app.route("/exp/param", methods=["GET"])
+@app.route("/exp/param", methods=["GET", "POST"])
 def exp_param():
-    # 暂时只做了读取
-    # TODO:写入
     uuid = request.args.get("uuid")
     if not uuid:
         return Response(400, "请求有误：请给出实验UUID。", None)
@@ -288,7 +287,22 @@ def exp_param():
     _t = select_exp(uuid)
     if _t is None:
         return Response(400, "请求有误：实验UUID无效。", None)
-    return Response(200, "ok", _t.dict())
+    if request.method == "GET":
+        return Response(200, "ok", _t.dict())
+    else:
+        # print(request.data)
+        _d = json.loads(request.data)
+        try:
+            _t.name = _d["name"]
+            _t.desc = _d["desc"]
+            _t.tags = _d["tags"]
+            _t.author = _d["author"]
+            return Response(200, "保存成功", None)
+        except KeyError as e:
+            return Response(400, "请求有误：键值缺失", str(e))
+        except Exception as e:
+            return Response(500, "保存失败，内部错误", str(e))
+
 
 @app.route("/exp/download", methods=["GET"])
 def exp_download():

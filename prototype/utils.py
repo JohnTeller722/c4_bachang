@@ -87,7 +87,7 @@ def get_pod_status(pod, namespace="default"):
     try:
         # status = api.read_namespaced_pod_status(pod, namespace).status.container_statuses[0].last_state
         status = api.read_namespaced_pod_status(pod, namespace).status.container_statuses[0]
-        print(status)
+        # print(status)
     except IndexError:
         return "Unknown"
     return "Running"
@@ -98,6 +98,12 @@ def get_pod_status(pod, namespace="default"):
             return "Running"
     else:
         return "Failed"
+
+def get_pod_status_full(pod, namespace="default"):
+    # status = api.read_namespaced_pod_status(pod, namespace).status.container_statuses[0].last_state
+    print("huh?")
+    status = api.read_namespaced_pod_status(pod, namespace).status
+    print(status)
 
 def read_pod_log(pod, namespace="default"):
     try:
@@ -188,9 +194,19 @@ def ssh_tunnel(pod, namespace="default", port=20022):
     asyncio.run(run())
 
     
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # print(test_kube_connection())
     # print(list_experiments())
+    get_pod_status_full("web-5cccf4c759-lsgwx")
+    data = api.read_namespaced_pod("web-5cccf4c759-lsgwx", namespace="default")
+    print(data)
+    print("-"*25)
+    # data = api.read_node_status("phytiumpi-catty")
+    # print(data)
+    # print("-"*25)
+    # data = api.read_node("phytiumpi-catty")
+    # print(data)
+    # print("-"*25)
     # read_pod_log("coredns-6799fbcd5-dnkxc", namespace="kube-system")
     # for i in list_experiments().items:
     #     print(i.metadata.name)
